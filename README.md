@@ -1,4 +1,5 @@
 <!-- ## Database Table Schema -->
+
 ## users table
 
 * id (uuid)
