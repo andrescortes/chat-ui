@@ -1,39 +1,106 @@
 <main>
-  <div class="container">
-    <h3 class="mb-3">Supa Chat <button class="btn btn-secondary" style="float: right;">Log
-        out</button>
-    </h3>
-    <div class="card">
-      <div>
+  <div class="container py-4">
+    <section class="card shadow-sm border-0">
+      <!-- Header -->
+      <header class="card-header bg-primary text-white d-flex justify-content-between align-items-center rounded-top">
+        <h3 class="mb-0 fw-bold">Supa Chat</h3>
+        <button (click)="logOut()" class="btn btn-sm btn-outline-light">Log out</button>
+      </header>
 
-        <div class="col-12 col-lg-12 col-xl-12">
-          <div class="position-relative">
-            <div class="chat-messages p-4">
-              <div class="chat-message-left pb-4">
-                <div class="me-5">
-                  <img
-                    src="https://res.cloudinary.com/dz4tt9omp/image/upload/v1687699216/photo_5960666862087946083_w.jpg"
-                    class="rounded-circle mr-1" alt="Sharon Doe" width="40" height="40">
-                  <div class="text-muted small text-nowrap mt-2">5:54 am</div>
+      <!-- Chat messages container -->
+      <section class="card-body chat-body px-0 pt-4 pb-2">
+        <div class="d-flex flex-column gap-4 px-4">
+          @for (chat of chats; track chat.id) {
+            <article
+              class="d-flex align-items-center"
+              [ngClass]="{
+                'justify-content-end': chat.sender === userId,
+                'justify-content-start': chat.sender !== userId
+              }"
+            >
+              <img
+                *ngIf="chat.sender !== userId"
+                [ngSrc]="image"
+                width="44"
+                height="44"
+                class="rounded-circle me-3 border"
+                alt="Avatar"
+              />
+
+              <div
+                class="message-bubble p-3 rounded shadow-sm"
+                [ngClass]="{
+                  'bg-primary text-white ms-auto': chat.sender === userId,
+                  'bg-white': chat.sender !== userId
+                }"
+              >
+                <div class="mb-1 small text-muted d-flex justify-content-between"
+                     [ngClass]="{'flex-row-reverse': chat.sender === userId}">
+                  <strong>{{ chat.users.full_name }}</strong>
+                  <time>{{ chat.created_at | date:'shortTime' }}</time>
                 </div>
-                <div class="flex-shrink-1 bg-light rounded py-2 px-3 ml-3">
-                  <div class="font-weight-bold mb-1">Sharon Doe</div>
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Aliquid at ullam reiciendis consequatur quis
-                  similique ea sapiente, voluptatem voluptate quia magnam a non corrupti unde accusantium maiores?
-                  Explicabo, maiores inventore!
+                <p class="mb-0">{{ chat.text }}</p>
 
+                <div class="dropdown mt-2 text-end">
+                  <button
+                    class="btn btn-link dropdown-toggle p-0"
+                    id="dropdownMenuButton_{{ chat.id }}"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                  >
+                    &bull;&bull;&bull;
+                  </button>
+                  <ul class="dropdown-menu dropdown-menu-end" [attr.aria-labelledby]="'dropdownMenuButton_' + chat.id">
+                    <li>
+                      <a
+                        (click)="openDropdown(chat)"
+                        class="dropdown-item pointer"
+                        data-bs-toggle="modal"
+                        data-bs-target="#exampleModal"
+                      >Delete</a>
+                    </li>
+                  </ul>
                 </div>
               </div>
-            </div>
-          </div>
-          <div class="flex-grow-0 py-3 px-4 border-top">
-            <div class="input-group">
-              <input type="text" class="form-control" placeholder="Type your message">
-              <button class="btn btn-primary">Send</button>
-            </div>
-          </div>
+
+              <img
+                *ngIf="chat.sender === userId"
+                [ngSrc]="image"
+                width="44"
+                height="44"
+                class="rounded-circle ms-3 border"
+                alt="Avatar"
+              />
+            </article>
+          } @empty {
+            <div class="text-center text-muted">No chats available</div>
+          }
         </div>
-      </div>
-    </div>
+      </section>
+
+      <!-- Input form -->
+      <footer class="card-footer bg-white border-top-0 p-3">
+        <form [formGroup]="chatForm" (ngSubmit)="onSubmit()" autocomplete="off" class="d-flex gap-2">
+          <input
+            formControlName="chatMessage"
+            class="form-control rounded-pill shadow-sm flex-grow-1"
+            placeholder="Type your message"
+            autocomplete="off"
+            minlength="1"
+            required
+          />
+          <button
+            [disabled]="chatForm.invalid"
+            type="submit"
+            class="btn btn-primary rounded-pill px-4 shadow"
+            [ngClass]="{'btn-disabled': chatForm.invalid}"
+          >
+            Send
+          </button>
+        </form>
+      </footer>
+    </section>
   </div>
 </main>
+
+<app-delete-modal></app-delete-modal>
